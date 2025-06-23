@@ -52,6 +52,7 @@ docker-compose.override.yml
 /client/out/
 client/package-lock.json
 client/yarn.lock
+.prettiercache
 
 # === Terraform ===
 *.tfstate
