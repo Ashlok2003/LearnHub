@@ -1,0 +1,90 @@
+# === Java & Spring Boot ===
+**/target/
+**/build/
+*.class
+*.jar
+*.war
+*.log
+*.iml
+
+# === Maven ===
+.mvn/
+mvnw
+mvnw.cmd
+
+# === Gradle (if used) ===
+.gradle/
+build/
+gradlew
+gradlew.bat
+
+# === Logs ===
+logs/
+*.log
+*.out
+*.err
+
+# === Environment Files ===
+*.env
+*.env.*
+!.env.example
+
+# === IDEs ===
+.idea/
+*.iws
+*.ipr
+*.iml
+.vscode/
+
+# === OS Files ===
+.DS_Store
+Thumbs.db
+
+# === Docker ===
+*.pid
+docker-compose.override.yml
+
+# === Next.js Frontend (client/) ===
+/client/.next/
+/client/node_modules/
+/client/.env.local
+/client/.env.*.local
+/client/out/
+client/package-lock.json
+client/yarn.lock
+
+# === Terraform ===
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+crash.log
+terraform.tfvars
+terraform.tfvars.json
+override.tf
+override.tf.json
+
+# === Helm ===
+*.tgz
+charts/
+release.yaml
+values.secret.yaml
+*.lock
+
+# === GitHub Actions ===
+# Ignore temporary workflow run logs (but NOT .github/workflows/)
+.github/*.log
+.github/.DS_Store
+
+# === Coverage / Test Reports ===
+coverage/
+test-results/
+jacoco.exec
+
+# === Miscellaneous ===
+*.tmp
+*.bak
+*.orig
+*.rej
+*.swo
+*.swp
