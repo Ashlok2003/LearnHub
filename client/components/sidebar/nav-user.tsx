@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  IconCreditCard,
-  IconDotsVertical,
-  IconLogout,
-  IconNotification,
-  IconUserCircle,
-} from '@tabler/icons-react';
+import { IconDotsVertical, IconLogout } from '@tabler/icons-react';
 
 import {
   Avatar,
@@ -28,7 +22,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { useSignOut } from '@/hooks/use-signout';
 import { authClient } from '@/lib/auth-client';
+import { Home, LayoutDashboard, Tv2 } from 'lucide-react';
+import Link from 'next/link';
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -39,6 +36,8 @@ export function NavUser() {
     return null;
   }
 
+  const handleSignOut = useSignOut();
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -48,7 +47,7 @@ export function NavUser() {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
+              <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage
                   src={
                     session?.user.image ??
@@ -113,21 +112,27 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <IconUserCircle />
-                Account
+              <DropdownMenuItem asChild>
+                <Link href="/">
+                  <Home />
+                  Homepage
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconCreditCard />
-                Billing
+              <DropdownMenuItem asChild>
+                <Link href="/admin">
+                  <LayoutDashboard />
+                  Dashboard
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconNotification />
-                Notifications
+              <DropdownMenuItem asChild>
+                <Link href="/courses">
+                  <Tv2 />
+                  Courses
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleSignOut}>
               <IconLogout />
               Log out
             </DropdownMenuItem>

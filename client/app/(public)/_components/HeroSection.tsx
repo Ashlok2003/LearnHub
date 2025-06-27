@@ -27,7 +27,7 @@ export function HeroSection() {
             />
             <Badge
               variant="outline"
-              className="font-semibold rounded-2xl py-1 px-2"
+              className="font-semibold rounded-2xl md:rounded-3xl p-2"
             >
               🎉 The Future of Online Education
             </Badge>

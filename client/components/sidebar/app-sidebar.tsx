@@ -1,9 +1,9 @@
 'use client';
 
-import { NavDocuments } from '@/components/nav-documents';
-import { NavMain } from '@/components/nav-main';
-import { NavSecondary } from '@/components/nav-secondary';
-import { NavUser } from '@/components/nav-user';
+import { NavDocuments } from '@/components/sidebar/nav-documents';
+import { NavMain } from '@/components/sidebar/nav-main';
+import { NavSecondary } from '@/components/sidebar/nav-secondary';
+import { NavUser } from '@/components/sidebar/nav-user';
 import {
   Sidebar,
   SidebarContent,
@@ -32,7 +32,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import * as React from 'react';
-import { Separator } from './ui/separator';
+import { Separator } from '../ui/separator';
 
 const data = {
   user: {
