@@ -1,4 +1,4 @@
-### LearnHub Architecture Documentation
+# LearnHub Architecture Documentation
 **Modern SaaS Learning Platform on AWS with Kubernetes Multi-Tenancy**
 
 ---
