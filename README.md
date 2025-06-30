@@ -100,6 +100,30 @@ tenants:
 
 ---
 
+## **CI/CD Pipeline**
+
+LearnHub integrates a GitOps-based Continuous Integration and Continuous Delivery (CI/CD) pipeline to automate code quality checks, infrastructure provisioning, container security, and Kubernetes deployments.
+
+![LearnHub CI/CD Pipeline](docs/cicd.png)
+
+### **Key Highlights**
+
+* **Infrastructure as Code**:
+  GitHub Actions triggers Terraform to provision cloud resources, securely injecting secrets via HashiCorp Vault.
+
+* **Code Quality & Security Checks**:
+  Uses **SonarQube** for static code analysis and **Trivy** for dependency and image scanning before deployment.
+
+* **Container Lifecycle**:
+  Docker images are built, scanned, and pushed to AWS ECR private repositories.
+
+* **GitOps with ArgoCD**:
+  ArgoCD fetches the latest deployment manifests from GitHub and syncs them to the Kubernetes cluster.
+
+> This pipeline ensures secure, repeatable, and automated delivery of both infrastructure and application code.
+
+---
+
 ## **Operational Excellence**
 ### **Monitoring**
 | **Tool**          | **Use Case**                                  |
@@ -118,7 +142,7 @@ tenants:
 ## **Contributing**
 1. Fork repository & create feature branch (`git checkout -b feat/new-service`)
 2. Submit PR with:
-   - Architecture diagrams (using [lucid.io](https://app.diagrams.net/))
+   - Architecture diagrams (using [lucidchart](https://app.diagrams.net/) and [eraser.io](https://app.eraser.io))
    - Terraform modules for new components
    - Helm chart updates
 3. Adhere to [Gitflow workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)
