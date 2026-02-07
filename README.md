@@ -15,25 +15,25 @@ LearnHub is a cloud-native Learning Management System (LMS) engineered for **sca
 ### **Mermaid: High-Level Architecture**
 ```mermaid
 flowchart LR
-    user[User] --> r53[Route 53]
-    r53 --> apigw[API Gateway (WAF/Throttle/Auth)]
-    apigw --> alb[ALB Ingress]
-    alb --> nginx[Nginx Ingress]
-    nginx -->|Tenant Routing| t1[tenant-1 namespace]
-    nginx -->|Tenant Routing| t2[tenant-2 namespace]
-    nginx --> platform[platform namespace]
-    t1 --> svc1[Course/Enrollment/Notification]
-    t2 --> svc2[Course/Enrollment/Notification]
-    platform --> svc3[Auth/Billing/Tenant Registry]
-    svc1 --> pg[(PostgreSQL + Patroni)]
+    user["User"] --> r53["Route 53"]
+    r53 --> apigw["API Gateway - WAF, Throttling, Auth"]
+    apigw --> alb["ALB Ingress"]
+    alb --> nginx["Nginx Ingress"]
+    nginx -->|Tenant Routing| t1["tenant-1 namespace"]
+    nginx -->|Tenant Routing| t2["tenant-2 namespace"]
+    nginx --> platform["platform namespace"]
+    t1 --> svc1["Course, Enrollment, Notification"]
+    t2 --> svc2["Course, Enrollment, Notification"]
+    platform --> svc3["Auth, Billing, Tenant Registry"]
+    svc1 --> pg[("PostgreSQL with Patroni")]
     svc2 --> pg
-    svc1 --> s3[S3 uploads/transcoded]
+    svc1 --> s3["S3 uploads and transcoded"]
     svc2 --> s3
-    svc1 --> ddb[DynamoDB metadata]
+    svc1 --> ddb["DynamoDB metadata"]
     svc2 --> ddb
-    s3 --> sf[Step Functions]
-    sf --> batch[AWS Batch + FFmpeg]
-    batch --> cf[CloudFront CDN]
+    s3 --> sf["Step Functions"]
+    sf --> batch["AWS Batch and FFmpeg"]
+    batch --> cf["CloudFront CDN"]
 ```
 
 ---
