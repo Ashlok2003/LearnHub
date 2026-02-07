@@ -12,6 +12,30 @@ LearnHub is a cloud-native Learning Management System (LMS) engineered for **sca
 ![High-Level Architecture](docs/architecture.png)
 >Note: The above diagram provides a visual representation of the LearnHub architecture for better understanding.
 
+### **Mermaid: High-Level Architecture**
+```mermaid
+flowchart LR
+    user[User] --> r53[Route 53]
+    r53 --> apigw[API Gateway - WAF, Throttling, Auth]
+    apigw --> alb[ALB Ingress]
+    alb --> nginx[Nginx Ingress]
+    nginx -->|Tenant Routing| t1[tenant-1 namespace]
+    nginx -->|Tenant Routing| t2[tenant-2 namespace]
+    nginx --> platform[platform namespace]
+    t1 --> svc1[Course, Enrollment, Notification]
+    t2 --> svc2[Course, Enrollment, Notification]
+    platform --> svc3[Auth, Billing, Tenant Registry]
+    svc1 --> pg[(PostgreSQL with Patroni)]
+    svc2 --> pg
+    svc1 --> s3[S3 uploads and transcoded]
+    svc2 --> s3
+    svc1 --> ddb[DynamoDB metadata]
+    svc2 --> ddb
+    s3 --> sf[Step Functions]
+    sf --> batch[AWS Batch + FFmpeg]
+    batch --> cf[CloudFront CDN]
+```
+
 ---
 
 ## **Core Components**
@@ -20,7 +44,8 @@ LearnHub is a cloud-native Learning Management System (LMS) engineered for **sca
 |-----------------------------|-----------------------------------------------------------------------------|
 | **VPC**                     | Segregated public/private subnets with security groups                      |
 | **Route 53**                | DNS management and domain routing                                           |
-| **EKS-Managed ALB**         | Traffic distribution to Kubernetes pods                                     |
+| **API Gateway (Edge)**      | WAF, throttling, auth pre-checks, and routing to ALB                         |
+| **EKS-Managed ALB**         | Traffic distribution to Kubernetes ingress endpoints                         |
 | **Nginx Reverse Proxy**     | Tenant-aware routing to Kubernetes namespaces                               |
 
 ### **2. Kubernetes Cluster (EKS)**
@@ -28,12 +53,13 @@ LearnHub is a cloud-native Learning Management System (LMS) engineered for **sca
 |-------------------|---------------------------------------------|-------------------------------------------------------|
 | `tenant-1`        | Course, Enrollment, Notification, Transcoding | Dedicated resources via Kubernetes ResourceQuotas     |
 | `tenant-2`        | Replica of tenant-1 services                | Network Policies for inter-namespace communication    |
+| `platform`        | Auth, Billing, Tenant Registry              | Shared services with strict RBAC and namespace policies |
 
 ### **3. Data Layer**
 | **Service**               | **Technology**    | **Configuration**                                  |
 |---------------------------|-------------------|----------------------------------------------------|
-| **Primary Database**      | PostgreSQL        | Active instance with streaming replication         |
-| **Standby Database**      | PostgreSQL        | Automatic failover via `pg_auto_failover`          |
+| **Primary Database**      | PostgreSQL        | Patroni-managed primary with synchronous replication |
+| **Standby Database**      | PostgreSQL        | Patroni-managed standby with automated failover    |
 | **File Storage**          | S3                | `uploads-bucket` (raw) & `transcoded-bucket` (processed) |
 | **Metadata Store**        | DynamoDB          | Signed URL generation with TTL                     |
 
@@ -44,9 +70,9 @@ LearnHub is a cloud-native Learning Management System (LMS) engineered for **sca
 
 ## **Key Workflows**
 ### **1. Multi-Tenant Request Flow**
-1. User → Route 53 → API Gateway
-2. ALB routes to tenant-specific namespace via Nginx ingress
-3. Microservices interact with tenant-sharded databases
+1. User → Route 53 → API Gateway (WAF, throttling, auth pre-checks)
+2. API Gateway → ALB → Nginx ingress (tenant-aware routing)
+3. Microservices interact with tenant-sharded databases (schema or database-per-tenant)
 
 ### **2. Video Transcoding Workflow**
 1. Upload API writes to S3 `uploads-bucket`
@@ -57,8 +83,8 @@ LearnHub is a cloud-native Learning Management System (LMS) engineered for **sca
 
 ### **3. High Availability Database**
 - **Active-Passive PostgreSQL**:
-  - Synchronous replication via `pglogical`
-  - Automatic failover using `Patroni`
+  - Synchronous replication via Patroni-managed PostgreSQL
+  - Automatic failover and leader election with Patroni
   - Read replicas for analytics workloads
 
 ---
@@ -79,6 +105,21 @@ terraform apply -target=module.rds
 
 # 3. Deploy Kubernetes services
 helm install learnhub ./charts -f tenants.yaml
+```
+
+### **Mermaid: Deployment Flow**
+```mermaid
+flowchart TD
+    dev[Developer Commit] --> gha[GitHub Actions]
+    gha --> tf[Terraform Apply]
+    tf --> aws[AWS: VPC/EKS/RDS/S3]
+    gha --> build[Build & Scan Images]
+    build --> ecr[ECR Push]
+    gha --> argo[ArgoCD Sync]
+    argo --> k8s[Kubernetes Deploy]
+    k8s --> ns1[tenant-1 namespace]
+    k8s --> ns2[tenant-2 namespace]
+    k8s --> plat[platform namespace]
 ```
 
 ### **Tenant Configuration**
@@ -125,6 +166,11 @@ LearnHub integrates a GitOps-based Continuous Integration and Continuous Deliver
 ---
 
 ## **Operational Excellence**
+### **Security & Compliance**
+- **Authentication/Authorization**: JWT claims map to tenant IDs; authorization enforced at ingress and service layers.
+- **Secrets Management**: AWS Secrets Manager or Vault for database credentials and API keys.
+- **Encryption**: S3 SSE-KMS and PostgreSQL at-rest encryption; TLS in transit across services.
+
 ### **Monitoring**
 | **Tool**          | **Use Case**                                  |
 |--------------------|----------------------------------------------|
